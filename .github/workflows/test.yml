@@ -2,8 +2,7 @@ name: Test
 
 on:
   push:
-    branches-ignore:
-    - 'release/*'
+    branches: master
   pull_request:
 env:
   CONTRIB_REPO_SHA: 5c9e043d6921550d82668788e3758a733fb11cb8
