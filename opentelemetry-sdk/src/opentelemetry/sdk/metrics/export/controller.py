@@ -49,11 +49,12 @@ class PushController(threading.Thread):
 
     def shutdown(self):
         self.finished.set()
-        # Run one more collection pass to flush metrics batched in the meter
+        # Run one more collection pass to flush metrics batched in the
+        # accumulator
         self.tick()
 
     def tick(self):
-        # Collect all of the meter's metrics to be exported
+        # Collect all of the accumulator's metrics to be exported
         self.accumulator.collect()
         # Export the collected metrics
         token = attach(set_value("suppress_instrumentation", True))

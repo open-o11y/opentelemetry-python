@@ -27,10 +27,10 @@ exporter = OpenCensusMetricsExporter(
 )
 
 metrics.set_meter_provider(MeterProvider())
-meter = metrics.get_meter(__name__)
-metrics.get_meter_provider().start_pipeline(meter, exporter, 5)
+accumulator = metrics.get_meter(__name__)
+metrics.get_meter_provider().start_pipeline(accumulator, exporter, 5)
 
-requests_counter = meter.create_counter(
+requests_counter = accumulator.create_counter(
     name="requests",
     description="number of requests",
     unit="1",

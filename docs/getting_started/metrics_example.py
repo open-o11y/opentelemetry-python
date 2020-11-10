@@ -21,13 +21,13 @@ from opentelemetry.sdk.metrics.export import ConsoleMetricsExporter
 from opentelemetry.sdk.metrics.export.controller import PushController
 
 metrics.set_meter_provider(MeterProvider())
-meter = metrics.get_meter(__name__, True)
+accumulator = metrics.get_meter(__name__, True)
 exporter = ConsoleMetricsExporter()
-controller = PushController(meter, exporter, 5)
+controller = PushController(accumulator, exporter, 5)
 
 staging_labels = {"environment": "staging"}
 
-requests_counter = meter.create_counter(
+requests_counter = accumulator.create_counter(
     name="requests",
     description="number of requests",
     unit="1",

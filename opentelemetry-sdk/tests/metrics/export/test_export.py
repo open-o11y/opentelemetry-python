@@ -40,14 +40,14 @@ class TestConsoleMetricsExporter(unittest.TestCase):
     # pylint: disable=no-self-use
     def test_export(self):
         meter_provider = metrics.MeterProvider()
-        meter = meter_provider.get_meter(__name__)
+        accumulator = meter_provider.get_meter(__name__)
         exporter = ConsoleMetricsExporter()
         metric = metrics.Counter(
             "available memory",
             "available memory",
             "bytes",
             int,
-            meter,
+            accumulator,
             ("environment",),
         )
         labels = {"environment": "staging"}
@@ -94,11 +94,11 @@ class TestProcessor(unittest.TestCase):
 
     def test_finished_collection_stateless(self):
         meter_provider = metrics.MeterProvider()
-        meter = meter_provider.get_meter(__name__)
+        accumulator = meter_provider.get_meter(__name__)
         processor = Processor(False, meter_provider.resource)
         aggregator = SumAggregator()
         metric = metrics.Counter(
-            "available memory", "available memory", "bytes", int, meter
+            "available memory", "available memory", "bytes", int, accumulator
         )
         aggregator.update(1.0)
         labels = ()
@@ -110,11 +110,11 @@ class TestProcessor(unittest.TestCase):
 
     def test_finished_collection_stateful(self):
         meter_provider = metrics.MeterProvider()
-        meter = meter_provider.get_meter(__name__)
+        accumulator = meter_provider.get_meter(__name__)
         processor = Processor(True, meter_provider.resource)
         aggregator = SumAggregator()
         metric = metrics.Counter(
-            "available memory", "available memory", "bytes", int, meter
+            "available memory", "available memory", "bytes", int, accumulator
         )
         aggregator.update(1.0)
         labels = ()
@@ -126,12 +126,12 @@ class TestProcessor(unittest.TestCase):
 
     def test_processor_process_exists(self):
         meter_provider = metrics.MeterProvider()
-        meter = meter_provider.get_meter(__name__)
+        accumulator = meter_provider.get_meter(__name__)
         processor = Processor(True, meter_provider.resource)
         aggregator = SumAggregator()
         aggregator2 = SumAggregator()
         metric = metrics.Counter(
-            "available memory", "available memory", "bytes", int, meter
+            "available memory", "available memory", "bytes", int, accumulator
         )
         labels = ()
         _batch_map = {}
@@ -148,11 +148,11 @@ class TestProcessor(unittest.TestCase):
 
     def test_processor_process_not_exists(self):
         meter_provider = metrics.MeterProvider()
-        meter = meter_provider.get_meter(__name__)
+        accumulator = meter_provider.get_meter(__name__)
         processor = Processor(True, meter_provider.resource)
         aggregator = SumAggregator()
         metric = metrics.Counter(
-            "available memory", "available memory", "bytes", int, meter
+            "available memory", "available memory", "bytes", int, accumulator
         )
         labels = ()
         _batch_map = {}
@@ -688,21 +688,21 @@ class TestLastValueAggregator(unittest.TestCase):
 
 class TestController(unittest.TestCase):
     def test_push_controller(self):
-        meter = mock.Mock()
+        accumulator = mock.Mock()
         exporter = mock.Mock()
-        controller = PushController(meter, exporter, 5.0)
-        meter.collect.assert_not_called()
+        controller = PushController(accumulator, exporter, 5.0)
+        accumulator.collect.assert_not_called()
         exporter.export.assert_not_called()
 
         controller.shutdown()
         self.assertTrue(controller.finished.isSet())
 
         # shutdown should flush the meter
-        self.assertEqual(meter.collect.call_count, 1)
+        self.assertEqual(accumulator.collect.call_count, 1)
         self.assertEqual(exporter.export.call_count, 1)
 
     def test_push_controller_suppress_instrumentation(self):
-        meter = mock.Mock()
+        accumulator = mock.Mock()
         exporter = mock.Mock()
         exporter.export = lambda x: self.assertIsNotNone(
             get_value("suppress_instrumentation")
@@ -710,7 +710,7 @@ class TestController(unittest.TestCase):
         with mock.patch(
             "opentelemetry.context._RUNTIME_CONTEXT"
         ) as context_patch:
-            controller = PushController(meter, exporter, 30.0)
+            controller = PushController(accumulator, exporter, 30.0)
             controller.tick()
             self.assertEqual(context_patch.attach.called, True)
             self.assertEqual(context_patch.detach.called, True)

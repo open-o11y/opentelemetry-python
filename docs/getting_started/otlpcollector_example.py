@@ -41,12 +41,12 @@ metric_exporter = OTLPMetricsExporter(
     # headers=(("metadata", "metadata")),
 )
 
-# Meter is responsible for creating and recording metrics
+# Accumulator is responsible for creating and recording metrics
 metrics.set_meter_provider(MeterProvider())
-meter = metrics.get_meter(__name__)
+accumulator = metrics.get_meter(__name__)
 # controller collects metrics created from meter and exports it via the
 # exporter every interval
-controller = PushController(meter, metric_exporter, 5)
+controller = PushController(accumulator, metric_exporter, 5)
 
 # Configure the tracer to use the collector exporter
 tracer = trace.get_tracer_provider().get_tracer(__name__)
@@ -54,7 +54,7 @@ tracer = trace.get_tracer_provider().get_tracer(__name__)
 with tracer.start_as_current_span("foo"):
     print("Hello world!")
 
-requests_counter = meter.create_counter(
+requests_counter = accumulator.create_counter(
     name="requests",
     description="number of requests",
     unit="1",

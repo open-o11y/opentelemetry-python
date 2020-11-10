@@ -42,24 +42,24 @@ metrics.set_meter_provider(MeterProvider())
 
 # The Meter is responsible for creating and recording metrics. Each meter has a
 # unique name, which we set as the module's name here.
-meter = metrics.get_meter(__name__)
+accumulator = metrics.get_meter(__name__)
 
 # Exporter to export metrics to the console
 exporter = ConsoleMetricsExporter()
 
 # start_pipeline will notify the MeterProvider to begin collecting/exporting
 # metrics with the given meter, exporter and interval in seconds
-metrics.get_meter_provider().start_pipeline(meter, exporter, 5)
+metrics.get_meter_provider().start_pipeline(accumulator, exporter, 5)
 
 # Metric instruments allow to capture measurements
-requests_counter = meter.create_counter(
+requests_counter = accumulator.create_counter(
     name="requests",
     description="number of requests",
     unit="1",
     value_type=int,
 )
 
-requests_size = meter.create_valuerecorder(
+requests_size = accumulator.create_valuerecorder(
     name="requests_size",
     description="size of requests",
     unit="1",

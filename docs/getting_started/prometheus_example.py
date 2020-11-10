@@ -29,13 +29,13 @@ start_http_server(port=8000, addr="localhost")
 
 processor_mode = "stateful"
 metrics.set_meter_provider(MeterProvider())
-meter = metrics.get_meter(__name__, processor_mode == "stateful")
+accumulator = metrics.get_meter(__name__, processor_mode == "stateful")
 exporter = PrometheusMetricsExporter("MyAppPrefix")
-controller = PushController(meter, exporter, 5)
+controller = PushController(accumulator, exporter, 5)
 
 staging_labels = {"environment": "staging"}
 
-requests_counter = meter.create_counter(
+requests_counter = accumulator.create_counter(
     name="requests",
     description="number of requests",
     unit="1",

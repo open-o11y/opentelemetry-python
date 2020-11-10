@@ -29,17 +29,19 @@ from opentelemetry.sdk.metrics.view import View, ViewConfig
 
 # Use the meter type provided by the SDK package
 metrics.set_meter_provider(MeterProvider())
-meter = metrics.get_meter(__name__)
-metrics.get_meter_provider().start_pipeline(meter, ConsoleMetricsExporter(), 5)
+accumulator = metrics.get_meter(__name__)
+metrics.get_meter_provider().start_pipeline(
+    accumulator, ConsoleMetricsExporter(), 5
+)
 
-requests_counter = meter.create_counter(
+requests_counter = accumulator.create_counter(
     name="requests",
     description="number of requests",
     unit="1",
     value_type=int,
 )
 
-requests_size = meter.create_valuerecorder(
+requests_size = accumulator.create_valuerecorder(
     name="requests_size",
     description="size of requests",
     unit="1",
@@ -85,10 +87,10 @@ size_view = View(
 # Register the views to the view manager to use the views. Views MUST be
 # registered before recording metrics. Metrics that are recorded without
 # views defined for them will use a default for that type of metric
-meter.register_view(counter_view1)
-meter.register_view(counter_view2)
-meter.register_view(counter_view3)
-meter.register_view(size_view)
+accumulator.register_view(counter_view1)
+accumulator.register_view(counter_view2)
+accumulator.register_view(counter_view3)
+accumulator.register_view(size_view)
 
 # The views will evaluate the labels passed into the record and aggregate upon
 # the unique labels that are generated

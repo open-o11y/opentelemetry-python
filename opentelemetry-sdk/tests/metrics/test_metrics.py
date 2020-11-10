@@ -27,8 +27,8 @@ from opentelemetry.sdk.metrics.view import View
 class TestMeterProvider(unittest.TestCase):
     def test_stateful(self):
         meter_provider = metrics.MeterProvider(stateful=False)
-        meter = meter_provider.get_meter(__name__)
-        self.assertIs(meter.processor.stateful, False)
+        accumulator = meter_provider.get_meter(__name__)
+        self.assertIs(accumulator.processor.stateful, False)
 
     def test_resource(self):
         resource = resources.Resource.create({})
@@ -43,9 +43,9 @@ class TestMeterProvider(unittest.TestCase):
     def test_start_pipeline(self):
         exporter = mock.Mock()
         meter_provider = metrics.MeterProvider()
-        meter = meter_provider.get_meter(__name__)
+        accumulator = meter_provider.get_meter(__name__)
         # pylint: disable=protected-access
-        meter_provider.start_pipeline(meter, exporter, 6)
+        meter_provider.start_pipeline(accumulator, exporter, 6)
         try:
             self.assertEqual(len(meter_provider._exporters), 1)
             self.assertEqual(len(meter_provider._controllers), 1)
@@ -67,52 +67,54 @@ class TestMeterProvider(unittest.TestCase):
 
 class TestMeter(unittest.TestCase):
     def test_extends_api(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        self.assertIsInstance(meter, metrics_api.Meter)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        self.assertIsInstance(accumulator, metrics_api.Meter)
 
     def test_collect_metrics(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
         processor_mock = mock.Mock()
-        meter.processor = processor_mock
-        counter = meter.create_counter("name", "desc", "unit", float,)
+        accumulator.processor = processor_mock
+        counter = accumulator.create_counter("name", "desc", "unit", float,)
         labels = {"key1": "value1"}
-        meter.register_view(View(counter, SumAggregator))
+        accumulator.register_view(View(counter, SumAggregator))
         counter.add(1.0, labels)
-        meter.collect()
+        accumulator.collect()
         self.assertTrue(processor_mock.process.called)
 
     def test_collect_no_metrics(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
         processor_mock = mock.Mock()
-        meter.processor = processor_mock
-        meter.collect()
+        accumulator.processor = processor_mock
+        accumulator.collect()
         self.assertFalse(processor_mock.process.called)
 
     def test_collect_not_registered(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
         processor_mock = mock.Mock()
-        meter.processor = processor_mock
-        counter = metrics.Counter("name", "desc", "unit", float, meter)
+        accumulator.processor = processor_mock
+        counter = metrics.Counter("name", "desc", "unit", float, accumulator)
         labels = {"key1": "value1"}
         counter.add(1.0, labels)
-        meter.collect()
+        accumulator.collect()
         self.assertFalse(processor_mock.process.called)
 
     def test_collect_disabled_metric(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
         processor_mock = mock.Mock()
-        meter.processor = processor_mock
-        counter = metrics.Counter("name", "desc", "unit", float, meter, False)
+        accumulator.processor = processor_mock
+        counter = metrics.Counter(
+            "name", "desc", "unit", float, accumulator, False
+        )
         labels = {"key1": "value1"}
-        meter.register_view(View(counter, SumAggregator))
+        accumulator.register_view(View(counter, SumAggregator))
         counter.add(1.0, labels)
-        meter.collect()
+        accumulator.collect()
         self.assertFalse(processor_mock.process.called)
 
     def test_collect_observers(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
         processor_mock = mock.Mock()
-        meter.processor = processor_mock
+        accumulator.processor = processor_mock
 
         def callback(observer):
             self.assertIsInstance(observer, metrics_api.Observer)
@@ -122,23 +124,23 @@ class TestMeter(unittest.TestCase):
             callback, "name", "desc", "unit", int, (), True
         )
 
-        meter.observers.add(observer)
-        meter.collect()
+        accumulator.observers.add(observer)
+        accumulator.collect()
         self.assertTrue(processor_mock.process.called)
 
     def test_record_batch(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
         labels = {"key1": "value1", "key2": "value2", "key3": "value3"}
-        counter = metrics.Counter("name", "desc", "unit", float, meter)
+        counter = metrics.Counter("name", "desc", "unit", float, accumulator)
         valuerecorder = metrics.ValueRecorder(
-            "name", "desc", "unit", float, meter
+            "name", "desc", "unit", float, accumulator
         )
         counter_v = View(counter, SumAggregator)
         measure_v = View(valuerecorder, MinMaxSumCountAggregator)
-        meter.register_view(counter_v)
-        meter.register_view(measure_v)
+        accumulator.register_view(counter_v)
+        accumulator.register_view(measure_v)
         record_tuples = [(counter, 1.0), (valuerecorder, 3.0)]
-        meter.record_batch(labels, record_tuples)
+        accumulator.record_batch(labels, record_tuples)
         labels_key = metrics.get_dict_as_key(labels)
         self.assertEqual(
             counter.bound_instruments[labels_key]
@@ -156,17 +158,17 @@ class TestMeter(unittest.TestCase):
     def test_create_counter(self):
         resource = mock.Mock(spec=resources.Resource)
         meter_provider = metrics.MeterProvider(resource=resource)
-        meter = meter_provider.get_meter(__name__)
-        counter = meter.create_counter("name", "desc", "unit", int,)
+        accumulator = meter_provider.get_meter(__name__)
+        counter = accumulator.create_counter("name", "desc", "unit", int,)
         self.assertIsInstance(counter, metrics.Counter)
         self.assertEqual(counter.value_type, int)
         self.assertEqual(counter.name, "name")
         self.assertIs(meter_provider.resource, resource)
-        self.assertEqual(counter.meter, meter)
+        self.assertEqual(counter.meter, accumulator)
 
     def test_create_updowncounter(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        updowncounter = meter.create_updowncounter(
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        updowncounter = accumulator.create_updowncounter(
             "name", "desc", "unit", float,
         )
         self.assertIsInstance(updowncounter, metrics.UpDownCounter)
@@ -174,26 +176,26 @@ class TestMeter(unittest.TestCase):
         self.assertEqual(updowncounter.name, "name")
 
     def test_create_valuerecorder(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        valuerecorder = meter.create_valuerecorder(
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        valuerecorder = accumulator.create_valuerecorder(
             "name", "desc", "unit", float,
         )
         self.assertIsInstance(valuerecorder, metrics.ValueRecorder)
         self.assertEqual(valuerecorder.value_type, float)
         self.assertEqual(valuerecorder.name, "name")
-        self.assertEqual(valuerecorder.meter, meter)
+        self.assertEqual(valuerecorder.meter, accumulator)
 
     def test_register_sumobserver(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
 
         callback = mock.Mock()
 
-        observer = meter.register_sumobserver(
+        observer = accumulator.register_sumobserver(
             callback, "name", "desc", "unit", int,
         )
 
         self.assertIsInstance(observer, metrics.SumObserver)
-        self.assertEqual(len(meter.observers), 1)
+        self.assertEqual(len(accumulator.observers), 1)
 
         self.assertEqual(observer.callback, callback)
         self.assertEqual(observer.name, "name")
@@ -204,16 +206,16 @@ class TestMeter(unittest.TestCase):
         self.assertTrue(observer.enabled)
 
     def test_register_updownsumobserver(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
 
         callback = mock.Mock()
 
-        observer = meter.register_updownsumobserver(
+        observer = accumulator.register_updownsumobserver(
             callback, "name", "desc", "unit", int,
         )
 
         self.assertIsInstance(observer, metrics.UpDownSumObserver)
-        self.assertEqual(len(meter.observers), 1)
+        self.assertEqual(len(accumulator.observers), 1)
 
         self.assertEqual(observer.callback, callback)
         self.assertEqual(observer.name, "name")
@@ -224,16 +226,16 @@ class TestMeter(unittest.TestCase):
         self.assertTrue(observer.enabled)
 
     def test_register_valueobserver(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
 
         callback = mock.Mock()
 
-        observer = meter.register_valueobserver(
+        observer = accumulator.register_valueobserver(
             callback, "name", "desc", "unit", int,
         )
 
         self.assertIsInstance(observer, metrics.ValueObserver)
-        self.assertEqual(len(meter.observers), 1)
+        self.assertEqual(len(accumulator.observers), 1)
 
         self.assertEqual(observer.callback, callback)
         self.assertEqual(observer.name, "name")
@@ -244,21 +246,21 @@ class TestMeter(unittest.TestCase):
         self.assertTrue(observer.enabled)
 
     def test_unregister_observer(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
 
         callback = mock.Mock()
 
-        observer = meter.register_valueobserver(
+        observer = accumulator.register_valueobserver(
             callback, "name", "desc", "unit", int, metrics.ValueObserver
         )
 
-        meter.unregister_observer(observer)
-        self.assertEqual(len(meter.observers), 0)
+        accumulator.unregister_observer(observer)
+        self.assertEqual(len(accumulator.observers), 0)
 
 
 class TestMetric(unittest.TestCase):
     def test_bind(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
         metric_types = [
             metrics.Counter,
             metrics.UpDownCounter,
@@ -267,7 +269,7 @@ class TestMetric(unittest.TestCase):
         labels = {"key": "value"}
         key_labels = metrics.get_dict_as_key(labels)
         for _type in metric_types:
-            metric = _type("name", "desc", "unit", int, meter)
+            metric = _type("name", "desc", "unit", int, accumulator)
             bound_instrument = metric.bind(labels)
             self.assertEqual(
                 metric.bound_instruments.get(key_labels), bound_instrument
@@ -276,11 +278,11 @@ class TestMetric(unittest.TestCase):
 
 class TestCounter(unittest.TestCase):
     def test_add(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        metric = metrics.Counter("name", "desc", "unit", int, meter)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        metric = metrics.Counter("name", "desc", "unit", int, accumulator)
         labels = {"key": "value"}
         counter_v = View(metric, SumAggregator)
-        meter.register_view(counter_v)
+        accumulator.register_view(counter_v)
         bound_mock = metric.bind(labels)
         metric.add(3, labels)
         metric.add(2, labels)
@@ -288,11 +290,11 @@ class TestCounter(unittest.TestCase):
 
     @mock.patch("opentelemetry.sdk.metrics.logger")
     def test_add_non_decreasing_int_error(self, logger_mock):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        metric = metrics.Counter("name", "desc", "unit", int, meter)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        metric = metrics.Counter("name", "desc", "unit", int, accumulator)
         labels = {"key": "value"}
         counter_v = View(metric, SumAggregator)
-        meter.register_view(counter_v)
+        accumulator.register_view(counter_v)
         bound_counter = metric.bind(labels)
         metric.add(3, labels)
         metric.add(0, labels)
@@ -302,11 +304,11 @@ class TestCounter(unittest.TestCase):
 
     @mock.patch("opentelemetry.sdk.metrics.logger")
     def test_add_non_decreasing_float_error(self, logger_mock):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        metric = metrics.Counter("name", "desc", "unit", float, meter)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        metric = metrics.Counter("name", "desc", "unit", float, accumulator)
         labels = {"key": "value"}
         counter_v = View(metric, SumAggregator)
-        meter.register_view(counter_v)
+        accumulator.register_view(counter_v)
         bound_counter = metric.bind(labels)
         metric.add(3.3, labels)
         metric.add(0.0, labels)
@@ -320,12 +322,14 @@ class TestCounter(unittest.TestCase):
 
 class TestUpDownCounter(unittest.TestCase):
     def test_add(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        metric = metrics.UpDownCounter("name", "desc", "unit", int, meter)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        metric = metrics.UpDownCounter(
+            "name", "desc", "unit", int, accumulator
+        )
         labels = {"key": "value"}
         bound_counter = metric.bind(labels)
         counter_v = View(metric, SumAggregator)
-        meter.register_view(counter_v)
+        accumulator.register_view(counter_v)
         metric.add(3, labels)
         metric.add(2, labels)
         self.assertEqual(bound_counter.view_datas.pop().aggregator.current, 5)
@@ -333,12 +337,14 @@ class TestUpDownCounter(unittest.TestCase):
 
 class TestValueRecorder(unittest.TestCase):
     def test_record(self):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        metric = metrics.ValueRecorder("name", "desc", "unit", int, meter)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        metric = metrics.ValueRecorder(
+            "name", "desc", "unit", int, accumulator
+        )
         labels = {"key": "value"}
         measure_v = View(metric, MinMaxSumCountAggregator)
         bound_valuerecorder = metric.bind(labels)
-        meter.register_view(measure_v)
+        accumulator.register_view(measure_v)
         values = (37, 42, 7)
         for val in values:
             metric.record(val, labels)
@@ -525,11 +531,11 @@ class TestValueObserver(unittest.TestCase):
 # pylint: disable=no-self-use
 class TestBoundCounter(unittest.TestCase):
     def test_add(self):
-        meter_mock = mock.Mock()
+        accumulator_mock = mock.Mock()
         metric_mock = mock.Mock()
         metric_mock.enabled = True
         metric_mock.value_type = int
-        metric_mock.meter = meter_mock
+        metric_mock.accumulator = accumulator_mock
         bound_metric = metrics.BoundCounter((), metric_mock)
         view_datas_mock = mock.Mock()
         bound_metric.view_datas = [view_datas_mock]
@@ -537,11 +543,11 @@ class TestBoundCounter(unittest.TestCase):
         view_datas_mock.record.assert_called_once_with(3)
 
     def test_add_disabled(self):
-        meter_mock = mock.Mock()
+        accumulator_mock = mock.Mock()
         metric_mock = mock.Mock()
         metric_mock.enabled = False
         metric_mock.value_type = int
-        metric_mock.meter = meter_mock
+        metric_mock.meter = accumulator_mock
         bound_metric = metrics.BoundCounter((), metric_mock)
         view_datas_mock = mock.Mock()
         bound_metric.view_datas = [view_datas_mock]
@@ -550,13 +556,13 @@ class TestBoundCounter(unittest.TestCase):
 
     @mock.patch("opentelemetry.sdk.metrics.logger")
     def test_add_incorrect_type(self, logger_mock):
-        meter_mock = mock.Mock()
+        accumulator_mock = mock.Mock()
         viewm_mock = mock.Mock()
-        meter_mock.view_manager = viewm_mock
+        accumulator_mock.view_manager = viewm_mock
         metric_mock = mock.Mock()
         metric_mock.enabled = True
         metric_mock.value_type = float
-        metric_mock.meter = meter_mock
+        metric_mock.meter = accumulator_mock
         bound_metric = metrics.BoundCounter((), metric_mock)
         view_datas_mock = mock.Mock()
         bound_metric.view_datas = [view_datas_mock]
@@ -567,11 +573,11 @@ class TestBoundCounter(unittest.TestCase):
 
 class TestBoundValueRecorder(unittest.TestCase):
     def test_record(self):
-        meter_mock = mock.Mock()
+        accumulator_mock = mock.Mock()
         metric_mock = mock.Mock()
         metric_mock.enabled = True
         metric_mock.value_type = int
-        metric_mock.meter = meter_mock
+        metric_mock.meter = accumulator_mock
         bound_valuerecorder = metrics.BoundValueRecorder((), metric_mock)
         view_datas_mock = mock.Mock()
         bound_valuerecorder.view_datas = [view_datas_mock]
@@ -579,11 +585,11 @@ class TestBoundValueRecorder(unittest.TestCase):
         view_datas_mock.record.assert_called_once_with(3)
 
     def test_record_disabled(self):
-        meter_mock = mock.Mock()
+        accumulator_mock = mock.Mock()
         metric_mock = mock.Mock()
         metric_mock.enabled = False
         metric_mock.value_type = int
-        metric_mock.meter = meter_mock
+        metric_mock.meter = accumulator_mock
         bound_valuerecorder = metrics.BoundValueRecorder((), metric_mock)
         view_datas_mock = mock.Mock()
         bound_valuerecorder.view_datas = [view_datas_mock]
@@ -592,11 +598,11 @@ class TestBoundValueRecorder(unittest.TestCase):
 
     @mock.patch("opentelemetry.sdk.metrics.logger")
     def test_record_incorrect_type(self, logger_mock):
-        meter_mock = mock.Mock()
+        accumulator_mock = mock.Mock()
         metric_mock = mock.Mock()
         metric_mock.enabled = True
         metric_mock.value_type = float
-        metric_mock.meter = meter_mock
+        metric_mock.meter = accumulator_mock
         bound_valuerecorder = metrics.BoundValueRecorder((), metric_mock)
         view_datas_mock = mock.Mock()
         bound_valuerecorder.view_datas = [view_datas_mock]

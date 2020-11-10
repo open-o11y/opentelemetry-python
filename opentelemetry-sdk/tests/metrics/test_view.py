@@ -34,12 +34,12 @@ from opentelemetry.sdk.metrics.view import View, ViewConfig
 class TestUtil(unittest.TestCase):
     @mock.patch("opentelemetry.sdk.metrics.view.logger")
     def test_default_aggregator(self, logger_mock):
-        meter = metrics.MeterProvider().get_meter(__name__)
-        counter = metrics.Counter("", "", "1", int, meter)
+        accumulator = metrics.MeterProvider().get_meter(__name__)
+        counter = metrics.Counter("", "", "1", int, accumulator)
         self.assertEqual(
             view.get_default_aggregator(counter), aggregate.SumAggregator
         )
-        ud_counter = metrics.UpDownCounter("", "", "1", int, meter)
+        ud_counter = metrics.UpDownCounter("", "", "1", int, accumulator)
         self.assertEqual(
             view.get_default_aggregator(ud_counter), aggregate.SumAggregator
         )
@@ -53,7 +53,7 @@ class TestUtil(unittest.TestCase):
             view.get_default_aggregator(ud_observer),
             aggregate.LastValueAggregator,
         )
-        recorder = metrics.ValueRecorder("", "", "1", int, meter)
+        recorder = metrics.ValueRecorder("", "", "1", int, accumulator)
         self.assertEqual(
             view.get_default_aggregator(recorder),
             aggregate.MinMaxSumCountAggregator,
@@ -71,15 +71,17 @@ class TestUtil(unittest.TestCase):
 
 class TestStateless(unittest.TestCase):
     def setUp(self):
-        self.meter = metrics.MeterProvider(stateful=False).get_meter(__name__)
+        self.accumulator = metrics.MeterProvider(stateful=False).get_meter(
+            __name__
+        )
         self.exporter = InMemoryMetricsExporter()
-        self.controller = PushController(self.meter, self.exporter, 30)
+        self.controller = PushController(self.accumulator, self.exporter, 30)
 
     def tearDown(self):
         self.controller.shutdown()
 
     def test_label_keys(self):
-        test_counter = self.meter.create_counter(
+        test_counter = self.accumulator.create_counter(
             name="test_counter",
             description="description",
             unit="By",
@@ -92,7 +94,7 @@ class TestStateless(unittest.TestCase):
             view_config=ViewConfig.LABEL_KEYS,
         )
 
-        self.meter.register_view(counter_view)
+        self.accumulator.register_view(counter_view)
         test_counter.add(6, {"environment": "production", "customer_id": 123})
         test_counter.add(5, {"environment": "production", "customer_id": 247})
 
@@ -106,7 +108,7 @@ class TestStateless(unittest.TestCase):
         self.assertEqual(metric_data[0].aggregator.checkpoint, 11)
 
     def test_ungrouped(self):
-        test_counter = self.meter.create_counter(
+        test_counter = self.accumulator.create_counter(
             name="test_counter",
             description="description",
             unit="By",
@@ -119,7 +121,7 @@ class TestStateless(unittest.TestCase):
             view_config=ViewConfig.UNGROUPED,
         )
 
-        self.meter.register_view(counter_view)
+        self.accumulator.register_view(counter_view)
         test_counter.add(6, {"environment": "production", "customer_id": 123})
         test_counter.add(5, {"environment": "production", "customer_id": 247})
 
@@ -136,7 +138,7 @@ class TestStateless(unittest.TestCase):
         self.assertTrue((label2, 5) in data_set)
 
     def test_multiple_views(self):
-        test_counter = self.meter.create_counter(
+        test_counter = self.accumulator.create_counter(
             name="test_counter",
             description="description",
             unit="By",
@@ -157,8 +159,8 @@ class TestStateless(unittest.TestCase):
             view_config=ViewConfig.LABEL_KEYS,
         )
 
-        self.meter.register_view(counter_view)
-        self.meter.register_view(mmsc_view)
+        self.accumulator.register_view(counter_view)
+        self.accumulator.register_view(mmsc_view)
         test_counter.add(6, {"environment": "production", "customer_id": 123})
         test_counter.add(5, {"environment": "production", "customer_id": 247})
 
@@ -186,11 +188,11 @@ class TestStateless(unittest.TestCase):
 
 class TestHistogramView(unittest.TestCase):
     def test_histogram_stateful(self):
-        meter = metrics.MeterProvider(stateful=True).get_meter(__name__)
+        accumulator = metrics.MeterProvider(stateful=True).get_meter(__name__)
         exporter = InMemoryMetricsExporter()
-        controller = PushController(meter, exporter, 30)
+        controller = PushController(accumulator, exporter, 30)
 
-        requests_size = meter.create_valuerecorder(
+        requests_size = accumulator.create_valuerecorder(
             name="requests_size",
             description="size of requests",
             unit="1",
@@ -205,7 +207,7 @@ class TestHistogramView(unittest.TestCase):
             view_config=ViewConfig.LABEL_KEYS,
         )
 
-        meter.register_view(size_view)
+        accumulator.register_view(size_view)
 
         # Since this is using the HistogramAggregator, the bucket counts will be reflected
         # with each record
@@ -240,11 +242,11 @@ class TestHistogramView(unittest.TestCase):
 
     def test_histogram_stateless(self):
         # Use the meter type provided by the SDK package
-        meter = metrics.MeterProvider(stateful=False).get_meter(__name__)
+        accumulator = metrics.MeterProvider(stateful=False).get_meter(__name__)
         exporter = InMemoryMetricsExporter()
-        controller = PushController(meter, exporter, 30)
+        controller = PushController(accumulator, exporter, 30)
 
-        requests_size = meter.create_valuerecorder(
+        requests_size = accumulator.create_valuerecorder(
             name="requests_size",
             description="size of requests",
             unit="1",
@@ -259,7 +261,7 @@ class TestHistogramView(unittest.TestCase):
             view_config=ViewConfig.LABEL_KEYS,
         )
 
-        meter.register_view(size_view)
+        accumulator.register_view(size_view)
 
         # Since this is using the HistogramAggregator, the bucket counts will be reflected
         # with each record

@@ -35,8 +35,8 @@ from opentelemetry.sdk.util import get_dict_as_key
 class TestPrometheusMetricExporter(unittest.TestCase):
     def setUp(self):
         set_meter_provider(metrics.MeterProvider())
-        self._meter = get_meter_provider().get_meter(__name__)
-        self._test_metric = self._meter.create_counter(
+        self.accumulator = get_meter_provider().get_meter(__name__)
+        self._test_metric = self.accumulator.create_counter(
             "testname", "testdesc", "unit", int,
         )
         labels = {"environment": "staging"}
@@ -79,8 +79,8 @@ class TestPrometheusMetricExporter(unittest.TestCase):
             self.assertIs(result, MetricsExportResult.SUCCESS)
 
     def test_min_max_sum_aggregator_to_prometheus(self):
-        meter = get_meter_provider().get_meter(__name__)
-        metric = meter.create_valuerecorder(
+        accumulator = get_meter_provider().get_meter(__name__)
+        metric = accumulator.create_valuerecorder(
             "test@name", "testdesc", "unit", int, []
         )
         labels = {}
@@ -100,8 +100,10 @@ class TestPrometheusMetricExporter(unittest.TestCase):
         self.assertIn("testprefix_test_name_sum 579.0", result)
 
     def test_counter_to_prometheus(self):
-        meter = get_meter_provider().get_meter(__name__)
-        metric = meter.create_counter("test@name", "testdesc", "unit", int,)
+        accumulator = get_meter_provider().get_meter(__name__)
+        metric = accumulator.create_counter(
+            "test@name", "testdesc", "unit", int,
+        )
         labels = {"environment@": "staging", "os": "Windows"}
         key_labels = get_dict_as_key(labels)
         aggregator = SumAggregator()
@@ -131,8 +133,8 @@ class TestPrometheusMetricExporter(unittest.TestCase):
     # TODO: Add unit test once Measure Aggregators are available
 
     def test_invalid_metric(self):
-        meter = get_meter_provider().get_meter(__name__)
-        metric = StubMetric("tesname", "testdesc", "unit", int, meter)
+        accumulator = get_meter_provider().get_meter(__name__)
+        metric = StubMetric("tesname", "testdesc", "unit", int, accumulator)
         labels = {"environment": "staging"}
         key_labels = get_dict_as_key(labels)
         record = MetricRecord(
@@ -161,9 +163,9 @@ class StubMetric(metrics.Metric):
         description: str,
         unit: str,
         value_type,
-        meter,
+        accumulator,
         enabled: bool = True,
     ):
         super().__init__(
-            name, description, unit, value_type, meter, enabled=enabled,
+            name, description, unit, value_type, accumulator, enabled=enabled,
         )

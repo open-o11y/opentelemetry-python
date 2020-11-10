@@ -23,8 +23,10 @@ from opentelemetry.sdk.metrics import MeterProvider, ValueObserver
 from opentelemetry.sdk.metrics.export import ConsoleMetricsExporter
 
 metrics.set_meter_provider(MeterProvider())
-meter = metrics.get_meter(__name__)
-metrics.get_meter_provider().start_pipeline(meter, ConsoleMetricsExporter(), 5)
+accumulator = metrics.get_meter(__name__)
+metrics.get_meter_provider().start_pipeline(
+    accumulator, ConsoleMetricsExporter(), 5
+)
 
 
 # Callback to gather cpu usage
@@ -34,7 +36,7 @@ def get_cpu_usage_callback(observer):
         observer.observe(percent, labels)
 
 
-meter.register_valueobserver(
+accumulator.register_valueobserver(
     callback=get_cpu_usage_callback,
     name="cpu_percent",
     description="per-cpu usage",
@@ -49,7 +51,7 @@ def get_ram_usage_callback(observer):
     observer.observe(ram_percent, {})
 
 
-meter.register_valueobserver(
+accumulator.register_valueobserver(
     callback=get_ram_usage_callback,
     name="ram_percent",
     description="RAM memory usage",

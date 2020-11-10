@@ -24,17 +24,19 @@ from opentelemetry.sdk.metrics.export import ConsoleMetricsExporter
 
 # Use the meter type provided by the SDK package
 metrics.set_meter_provider(MeterProvider())
-meter = metrics.get_meter(__name__)
-metrics.get_meter_provider().start_pipeline(meter, ConsoleMetricsExporter(), 5)
+accumulator = metrics.get_meter(__name__)
+metrics.get_meter_provider().start_pipeline(
+    accumulator, ConsoleMetricsExporter(), 5
+)
 
-requests_counter = meter.create_counter(
+requests_counter = accumulator.create_counter(
     name="requests",
     description="number of requests",
     unit="1",
     value_type=int,
 )
 
-clicks_counter = meter.create_counter(
+clicks_counter = accumulator.create_counter(
     name="clicks", description="number of clicks", unit="1", value_type=int,
 )
 
@@ -60,7 +62,9 @@ print("Updating using batch calling convention...")
 # You can record metrics in a batch by passing in labels and a sequence of
 # (metric, value) pairs. The value would be recorded for each metric using the
 # specified labels for each.
-meter.record_batch(labels, ((requests_counter, 50), (clicks_counter, 70)))
+accumulator.record_batch(
+    labels, ((requests_counter, 50), (clicks_counter, 70))
+)
 time.sleep(5)
 
 input("...\n")
