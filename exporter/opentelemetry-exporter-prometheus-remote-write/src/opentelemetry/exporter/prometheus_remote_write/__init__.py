@@ -29,16 +29,11 @@ from opentelemetry.sdk.metrics.export.aggregate import (
     SumAggregator,
     ValueObserverAggregator,
 )
-
-
-class TimeSeriesData:
-    def __init__(self, labels, samples):
-        self.labels = labels
-        self.samples = samples
-
-    def __eq__(self, other) -> bool:
-        return self.labels == other.labels and self.samples == other.samples
-
+from types_pb2 import (
+    TimeSeries,
+    Sample,
+    Label,
+)
 
 class PrometheusRemoteWriteMetricsExporter(MetricsExporter):
     """
@@ -57,31 +52,51 @@ class PrometheusRemoteWriteMetricsExporter(MetricsExporter):
     def shutdown(self) -> None:
         pass
 
-    def convert_to_timeseries(self, metric_records: Sequence[MetricRecord]) -> Sequence[TimeSeriesData]:
+    def create_time_series(self, record: MetricRecord, extra_labels, value) \
+            -> TimeSeries:
+        timeseries = TimeSeries()
+        sample = Sample()
+        sample.value = value
+        sample.timestamp = record.aggregator.last_update_timestamp
+
+        # add labels
+        labels = self.create_labelset(extra_labels)
+        timeseries.labels.append(labels)
+        return timeseries
+
+    def create_labelset(self) -> Sequence[Label]:
+        return [Label()]
+
+    def convert_to_timeseries(self, metric_records: Sequence[MetricRecord]) \
+            -> Sequence[TimeSeries]:
         pass
 
-    def convert_from_sum(self, sum_record: MetricRecord) -> TimeSeriesData:
+    def convert_from_sum(self, sum_record: MetricRecord) -> TimeSeries:
         pass
 
-    def convert_from_min_max_sum_count(self, min_max_sum_count_record: MetricRecord) -> TimeSeriesData:
+    def convert_from_min_max_sum_count(self, min_max_sum_count_record:
+    MetricRecord) -> TimeSeries:
         pass
 
-    def convert_from_histogram(self, histogram_record: MetricRecord) -> TimeSeriesData:
+    def convert_from_histogram(self, histogram_record: MetricRecord) -> \
+            TimeSeries:
         pass
 
-    def convert_from_last_value(self, last_value_record: MetricRecord) -> TimeSeriesData:
+    def convert_from_last_value(self, last_value_record: MetricRecord) -> \
+            TimeSeries:
         pass
 
-    def convert_from_value_observer(self, value_observer_record: MetricRecord) -> TimeSeriesData:
+    def convert_from_value_observer(self, value_observer_record:
+    MetricRecord) -> TimeSeries:
         pass
 
-    def convert_from_summary(self, summary_record: MetricRecord) -> TimeSeriesData:
+    def convert_from_summary(self, summary_record: MetricRecord) -> TimeSeries:
         pass
 
     def sanitize_label(self, label: str) -> str:
         pass
 
-    def build_message(self, data: Sequence[TimeSeriesData]) -> str:
+    def build_message(self, data: Sequence[TimeSeries]) -> str:
         pass
 
     def get_headers(self) -> Dict:
@@ -104,6 +119,7 @@ class Config():
     Args:
         config_dict: dictionary containing all config properties
     """
+
     def __init__(self, config_dict):
         pass
 
