@@ -22,18 +22,13 @@ from opentelemetry.sdk.metrics.export import (
     MetricsExporter,
     MetricsExportResult,
 )
-from opentelemetry.sdk.metrics.export.aggregate import (
-    HistogramAggregator,
-    LastValueAggregator,
-    MinMaxSumCountAggregator,
-    SumAggregator,
-    ValueObserverAggregator,
-)
-from types_pb2 import (
+
+from .protobufs.types_pb2 import (
     TimeSeries,
     Sample,
     Label,
 )
+
 
 class PrometheusRemoteWriteMetricsExporter(MetricsExporter):
     """
@@ -46,36 +41,59 @@ class PrometheusRemoteWriteMetricsExporter(MetricsExporter):
     def __init__(self, prefix: str = ""):
         pass
 
-    def export(self, metric_records: Sequence[MetricRecord]) -> MetricsExportResult:
+    def export(self, metric_records: Sequence[MetricRecord]) -> \
+            MetricsExportResult:
         pass
 
     def shutdown(self) -> None:
         pass
 
+    # pylint: disable=no-member
     def create_time_series(self, record: MetricRecord, extra_labels, value) \
             -> TimeSeries:
-        timeseries = TimeSeries()
         sample = Sample()
-        sample.value = value
+        sample.value = float(value)
         sample.timestamp = record.aggregator.last_update_timestamp
 
+        timeseries = TimeSeries()
         # add labels
         labels = self.create_labelset(extra_labels)
         timeseries.labels.append(labels)
+        # add sample
+        timeseries.samples.append(sample)
         return timeseries
 
-    def create_labelset(self) -> Sequence[Label]:
-        return [Label()]
+    def create_labelset(self, extra_labels) -> Sequence[Label]:
+        labels = []
+        for label in extra_labels:
+            tmp_label = Label()
+            tmp_label.name = label[0]
+            tmp_label.value = label[1]
+            labels.append(tmp_label)
+        return labels
 
     def convert_to_timeseries(self, metric_records: Sequence[MetricRecord]) \
             -> Sequence[TimeSeries]:
-        pass
+        switcher = {
+            "MinMaxSumCountAggregator": self.convert_from_min_max_sum_count,
+            "SumAggregator": self.convert_from_sum,
+            "HistogramAggregator": self.convert_from_histogram,
+            "LastValueAggregator": self.convert_from_last_value,
+            "ValueObserverAggregator": self.convert_from_last_value,
+        }
+        timeseries = []
+        for record in metric_records:
+            converter = switcher.get(
+                type(record).__name__, lambda: "INVALID AGGREGATOR"
+            )
+            timeseries.append(converter(record))
+        return timeseries
 
     def convert_from_sum(self, sum_record: MetricRecord) -> TimeSeries:
         pass
 
     def convert_from_min_max_sum_count(self, min_max_sum_count_record:
-    MetricRecord) -> TimeSeries:
+                                       MetricRecord) -> TimeSeries:
         pass
 
     def convert_from_histogram(self, histogram_record: MetricRecord) -> \
@@ -87,7 +105,7 @@ class PrometheusRemoteWriteMetricsExporter(MetricsExporter):
         pass
 
     def convert_from_value_observer(self, value_observer_record:
-    MetricRecord) -> TimeSeries:
+                                    MetricRecord) -> TimeSeries:
         pass
 
     def convert_from_summary(self, summary_record: MetricRecord) -> TimeSeries:
