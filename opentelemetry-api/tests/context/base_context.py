@@ -16,12 +16,13 @@ import unittest
 from logging import ERROR
 
 from opentelemetry import context
-from opentelemetry.context import Key
+from opentelemetry.context.context import Key
 
 
-def do_work() -> None:
+def do_work() -> Key:
     key = context.create_key("say")
     context.attach(context.set_value(key, "bar"))
+    return key
 
 
 class ContextTestCases:
@@ -40,13 +41,13 @@ class ContextTestCases:
 
             self.assertEqual(context.get_value(key, context=second), "foo")
 
-            do_work()
-            self.assertEqual(context.get_value(key), "bar")
+            key2 = do_work()
+            self.assertEqual(context.get_value(key2), "bar")
             third = context.get_current()
 
             self.assertIsNone(context.get_value(key, context=empty))
             self.assertEqual(context.get_value(key, context=second), "foo")
-            self.assertEqual(context.get_value(key, context=third), "bar")
+            self.assertEqual(context.get_value(key2, context=third), "bar")
 
         def test_set_value(self):
             key = context.create_key("a")
@@ -74,10 +75,10 @@ class ContextTestCases:
         def test_detach_out_of_order(self):
             key = context.create_key("c")
             t1 = context.attach(context.set_value(key, 1))
-            self.assertEqual(context.get_current(), {key.keyval: 1})
+            self.assertEqual(context.get_current(), {key: 1})
             t2 = context.attach(context.set_value(key, 2))
-            self.assertEqual(context.get_current(), {key.keyval: 2})
+            self.assertEqual(context.get_current(), {key: 2})
             context.detach(t1)
             self.assertEqual(context.get_current(), {})
             context.detach(t2)
-            self.assertEqual(context.get_current(), {key.keyval: 1})
+            self.assertEqual(context.get_current(), {key: 1})

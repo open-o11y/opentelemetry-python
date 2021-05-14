@@ -20,6 +20,7 @@ from opentelemetry.context.context import Context
 
 _BAGGAGE_KEY = create_key("baggage")
 
+
 def get_all(
     context: typing.Optional[Context] = None,
 ) -> typing.Mapping[str, object]:

@@ -16,8 +16,13 @@ import typing
 from abc import ABC, abstractmethod
 
 
-class Context(typing.Dict[str, object]):
-    def __setitem__(self, key: str, value: object) -> None:
+class Key:
+    def __init__(self, keyval: str) -> None:
+        self.keyval = keyval
+
+
+class Context(typing.Dict[Key, object]):
+    def __setitem__(self, key: Key, value: object) -> None:
         raise ValueError
 
 

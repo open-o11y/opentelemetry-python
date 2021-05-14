@@ -19,6 +19,7 @@ from opentelemetry.trace.span import INVALID_SPAN, Span
 
 SPAN_KEY = create_key("current-span")
 
+
 def set_span_in_context(
     span: Span, context: Optional[Context] = None
 ) -> Context:

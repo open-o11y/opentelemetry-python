@@ -15,12 +15,13 @@
 import unittest
 
 from opentelemetry import context
-from opentelemetry.context.context import Context
+from opentelemetry.context.context import Context, Key
 
 
-def do_work() -> None:
+def do_work() -> Key:
     key = context.create_key("say")
     context.attach(context.set_value(key, "bar"))
+    return key
 
 
 class TestContext(unittest.TestCase):
@@ -34,13 +35,13 @@ class TestContext(unittest.TestCase):
         second = context.set_value(key, "foo")
         self.assertEqual(context.get_value(key, context=second), "foo")
 
-        do_work()
-        self.assertEqual(context.get_value(key), "bar")
+        key2 = do_work()
+        self.assertEqual(context.get_value(key2), "bar")
         third = context.get_current()
 
         self.assertIsNone(context.get_value(key, context=empty))
         self.assertEqual(context.get_value(key, context=second), "foo")
-        self.assertEqual(context.get_value(key, context=third), "bar")
+        self.assertEqual(context.get_value(key2, context=third), "bar")
 
     def test_create_key(self):
         first = context.create_key("a")

@@ -21,7 +21,7 @@ from os import environ
 
 from pkg_resources import iter_entry_points
 
-from opentelemetry.context.context import Context, _RuntimeContext
+from opentelemetry.context.context import Context, Key, _RuntimeContext
 from opentelemetry.environment_variables import OTEL_PYTHON_CONTEXT
 
 logger = logging.getLogger(__name__)
@@ -68,12 +68,10 @@ def _load_runtime_context(func: _F) -> _F:
 
     return typing.cast(_F, wrapper)  # type: ignore[misc]
 
-class Key():
-    def __init__(self, keyval: str) -> None:
-        self.keyval = keyval
 
 def create_key(keyname: str) -> Key:
     return Key(keyname)
+
 
 def get_value(key: Key, context: typing.Optional[Context] = None) -> "object":
     """To access the local state of a concern, the RuntimeContext ›API
@@ -87,7 +85,7 @@ def get_value(key: Key, context: typing.Optional[Context] = None) -> "object":
     Returns:
         The value associated with the key.
     """
-    return context.get(key.keyval) if context is not None else get_current().get(key.keyval)
+    return context.get(key) if context is not None else get_current().get(key)
 
 
 def set_value(
@@ -109,7 +107,7 @@ def set_value(
     if context is None:
         context = get_current()
     new_values = context.copy()
-    new_values[key.keyval] = value
+    new_values[key] = value
     return Context(new_values)
 
 
