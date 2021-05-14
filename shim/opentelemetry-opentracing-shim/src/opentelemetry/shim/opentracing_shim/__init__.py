@@ -115,7 +115,6 @@ from opentelemetry.trace import (
 )
 from opentelemetry.util.types import Attributes
 
-
 ValueT = TypeVar("ValueT", int, float, bool, str)
 logger = logging.getLogger(__name__)
 

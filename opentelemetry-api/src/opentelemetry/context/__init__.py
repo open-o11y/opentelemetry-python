@@ -70,7 +70,7 @@ def _load_runtime_context(func: _F) -> _F:
 
 
 def create_key(keyname: str) -> Key:
-    return Key(keyname)
+    return Key()
 
 
 def get_value(key: Key, context: typing.Optional[Context] = None) -> "object":

@@ -19,12 +19,14 @@ from unittest.mock import Mock
 import opentelemetry.sdk.trace as trace
 import opentelemetry.sdk.trace.id_generator as id_generator
 import opentelemetry.trace as trace_api
-from opentelemetry.context import Context, get_current
+from opentelemetry.context import Context, create_key, get_current
 from opentelemetry.propagators.b3 import (  # pylint: disable=no-name-in-module,import-error
     B3MultiFormat,
     B3SingleFormat,
 )
 from opentelemetry.propagators.textmap import DefaultGetter
+
+B3_KEY = create_key("b3")
 
 
 def get_child_parent_new_carrier(old_carrier, propagator):
@@ -237,7 +239,7 @@ class AbstractB3FormatTestCase:
 
     def test_derived_ctx_is_returned_for_success(self):
         """Ensure returned context is derived from the given context."""
-        old_ctx = Context({"k1": "v1"})
+        old_ctx = Context({B3_KEY: "v1"})
         propagator = self.get_propagator()
         new_ctx = propagator.extract(
             {
@@ -255,7 +257,7 @@ class AbstractB3FormatTestCase:
 
     def test_derived_ctx_is_returned_for_failure(self):
         """Ensure returned context is derived from the given context."""
-        old_ctx = Context({"k2": "v2"})
+        old_ctx = Context({B3_KEY: "v2"})
         new_ctx = self.get_propagator().extract({}, old_ctx)
         self.assertNotIn("current-span", new_ctx)
         for key, value in old_ctx.items():  # pylint:disable=no-member
@@ -282,7 +284,7 @@ class AbstractB3FormatTestCase:
 
     def test_extract_invalid_single_header_to_explicit_ctx(self):
         """Given unparsable header, do not modify context"""
-        old_ctx = Context({"k1": "v1"})
+        old_ctx = Context({B3_KEY: "v1"})
         propagator = self.get_propagator()
 
         carrier = {propagator.SINGLE_HEADER_KEY: "0-1-2-3-4-5-6-7"}
@@ -299,7 +301,7 @@ class AbstractB3FormatTestCase:
 
     def test_extract_missing_trace_id_to_explicit_ctx(self):
         """Given no trace ID, do not modify context"""
-        old_ctx = Context({"k1": "v1"})
+        old_ctx = Context({B3_KEY: "v1"})
         propagator = self.get_propagator()
 
         carrier = {
@@ -322,7 +324,7 @@ class AbstractB3FormatTestCase:
 
     def test_extract_invalid_trace_id_to_explicit_ctx(self):
         """Given invalid trace ID, do not modify context"""
-        old_ctx = Context({"k1": "v1"})
+        old_ctx = Context({B3_KEY: "v1"})
         propagator = self.get_propagator()
 
         carrier = {
@@ -347,7 +349,7 @@ class AbstractB3FormatTestCase:
 
     def test_extract_invalid_span_id_to_explicit_ctx(self):
         """Given invalid span ID, do not modify context"""
-        old_ctx = Context({"k1": "v1"})
+        old_ctx = Context({B3_KEY: "v1"})
         propagator = self.get_propagator()
 
         carrier = {
@@ -372,7 +374,7 @@ class AbstractB3FormatTestCase:
 
     def test_extract_missing_span_id_to_explicit_ctx(self):
         """Given no span ID, do not modify context"""
-        old_ctx = Context({"k1": "v1"})
+        old_ctx = Context({B3_KEY: "v1"})
         propagator = self.get_propagator()
 
         carrier = {
@@ -395,7 +397,7 @@ class AbstractB3FormatTestCase:
 
     def test_extract_empty_carrier_to_explicit_ctx(self):
         """Given no headers at all, do not modify context"""
-        old_ctx = Context({"k1": "v1"})
+        old_ctx = Context({B3_KEY: "v1"})
 
         carrier = {}
         new_ctx = self.get_propagator().extract(carrier, old_ctx)

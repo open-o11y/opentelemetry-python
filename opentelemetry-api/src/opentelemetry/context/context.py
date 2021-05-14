@@ -17,8 +17,7 @@ from abc import ABC, abstractmethod
 
 
 class Key:
-    def __init__(self, keyval: str) -> None:
-        self.keyval = keyval
+    pass
 
 
 class Context(typing.Dict[Key, object]):
