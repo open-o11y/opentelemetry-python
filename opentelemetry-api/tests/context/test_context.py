@@ -40,6 +40,11 @@ class TestContext(unittest.TestCase):
         self.assertEqual(context.get_value("say", context=second), "foo")
         self.assertEqual(context.get_value("say", context=third), "bar")
 
+    def test_create_key(self):
+        first = context.create_key("a")
+        second = context.create_key("a")
+        self.assertNotEqual(first, second)
+
     def test_set_value(self):
         first = context.set_value("a", "yyy")
         second = context.set_value("a", "zzz")
