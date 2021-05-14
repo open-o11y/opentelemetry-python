@@ -15,13 +15,13 @@
 import logging
 import threading
 import typing
-import uuid
 from functools import wraps
 from os import environ
 
 from pkg_resources import iter_entry_points
 
-from opentelemetry.context.context import Context, Key, _RuntimeContext
+from opentelemetry.context.context import Context, _RuntimeContext
+from opentelemetry.context.key import Key
 from opentelemetry.environment_variables import OTEL_PYTHON_CONTEXT
 
 logger = logging.getLogger(__name__)
@@ -70,6 +70,16 @@ def _load_runtime_context(func: _F) -> _F:
 
 
 def create_key(keyname: str) -> Key:
+    """To allow cross-cutting concern to control access to their local state,
+    the RuntimeContext API provides a function which takes a keyname as input,
+    and returns an opaque Key object.
+
+    Args:
+        keyname: The key name for debugging purposes.
+
+    Returns:
+        A new `Key` object representing the newly created key.
+    """
     return Key()
 
 

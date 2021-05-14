@@ -25,6 +25,7 @@ from opentelemetry.propagators.b3 import (  # pylint: disable=no-name-in-module,
     B3SingleFormat,
 )
 from opentelemetry.propagators.textmap import DefaultGetter
+from opentelemetry.trace.propagation import SPAN_KEY
 
 B3_KEY = create_key("b3")
 
@@ -249,7 +250,7 @@ class AbstractB3FormatTestCase:
             },
             old_ctx,
         )
-        self.assertIn("current-span", new_ctx)
+        self.assertIn(SPAN_KEY, new_ctx)
         for key, value in old_ctx.items():  # pylint:disable=no-member
             self.assertIn(key, new_ctx)
             # pylint:disable=unsubscriptable-object
@@ -259,7 +260,7 @@ class AbstractB3FormatTestCase:
         """Ensure returned context is derived from the given context."""
         old_ctx = Context({B3_KEY: "v2"})
         new_ctx = self.get_propagator().extract({}, old_ctx)
-        self.assertNotIn("current-span", new_ctx)
+        self.assertNotIn(SPAN_KEY, new_ctx)
         for key, value in old_ctx.items():  # pylint:disable=no-member
             self.assertIn(key, new_ctx)
             # pylint:disable=unsubscriptable-object

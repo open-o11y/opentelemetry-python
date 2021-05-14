@@ -15,9 +15,7 @@
 import typing
 from abc import ABC, abstractmethod
 
-
-class Key:
-    pass
+from opentelemetry.context.key import Key
 
 
 class Context(typing.Dict[Key, object]):

@@ -7,6 +7,7 @@ Submodules
 .. toctree::
 
    context.context
+   context.key
 
 Module contents
 ---------------
