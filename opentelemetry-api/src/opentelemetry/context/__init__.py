@@ -68,14 +68,14 @@ def _load_runtime_context(func: _F) -> _F:
 
     return typing.cast(_F, wrapper)  # type: ignore[misc]
 
-class CreateKey():
-    def __init__(self, key):
-        self.key = key
+class Key():
+    def __init__(self, keyval: str) -> None:
+        self.keyval = keyval
 
-def create_key(keyname: str):
-    return CreateKey(uuid.uuid4())
+def create_key(keyname: str) -> Key:
+    return Key(keyname)
 
-def get_value(key: "object", context: typing.Optional[Context] = None) -> "object":
+def get_value(key: Key, context: typing.Optional[Context] = None) -> "object":
     """To access the local state of a concern, the RuntimeContext ›API
     provides a function which takes a context and a key as input,
     and returns a value.
@@ -87,11 +87,11 @@ def get_value(key: "object", context: typing.Optional[Context] = None) -> "objec
     Returns:
         The value associated with the key.
     """
-    return context.get(key) if context is not None else get_current().get(key)
+    return context.get(key.keyval) if context is not None else get_current().get(key.keyval)
 
 
 def set_value(
-    key: "object", value: "object", context: typing.Optional[Context] = None
+    key: Key, value: "object", context: typing.Optional[Context] = None
 ) -> Context:
     """To record the local state of a cross-cutting concern, the
     RuntimeContext API provides a function which takes a context, a
@@ -109,7 +109,7 @@ def set_value(
     if context is None:
         context = get_current()
     new_values = context.copy()
-    new_values[key] = value
+    new_values[key.keyval] = value
     return Context(new_values)
 
 

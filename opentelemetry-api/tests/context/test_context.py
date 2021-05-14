@@ -19,7 +19,8 @@ from opentelemetry.context.context import Context
 
 
 def do_work() -> None:
-    context.attach(context.set_value("say", "bar"))
+    key = context.create_key("say")
+    context.attach(context.set_value(key, "bar"))
 
 
 class TestContext(unittest.TestCase):
@@ -27,18 +28,19 @@ class TestContext(unittest.TestCase):
         context.attach(Context())
 
     def test_context(self):
-        self.assertIsNone(context.get_value("say"))
+        key = context.create_key("say")
+        self.assertIsNone(context.get_value(key))
         empty = context.get_current()
-        second = context.set_value("say", "foo")
-        self.assertEqual(context.get_value("say", context=second), "foo")
+        second = context.set_value(key, "foo")
+        self.assertEqual(context.get_value(key, context=second), "foo")
 
         do_work()
-        self.assertEqual(context.get_value("say"), "bar")
+        self.assertEqual(context.get_value(key), "bar")
         third = context.get_current()
 
-        self.assertIsNone(context.get_value("say", context=empty))
-        self.assertEqual(context.get_value("say", context=second), "foo")
-        self.assertEqual(context.get_value("say", context=third), "bar")
+        self.assertIsNone(context.get_value(key, context=empty))
+        self.assertEqual(context.get_value(key, context=second), "foo")
+        self.assertEqual(context.get_value(key, context=third), "bar")
 
     def test_create_key(self):
         first = context.create_key("a")
@@ -46,13 +48,14 @@ class TestContext(unittest.TestCase):
         self.assertNotEqual(first, second)
 
     def test_set_value(self):
-        first = context.set_value("a", "yyy")
-        second = context.set_value("a", "zzz")
-        third = context.set_value("a", "---", first)
-        self.assertEqual("yyy", context.get_value("a", context=first))
-        self.assertEqual("zzz", context.get_value("a", context=second))
-        self.assertEqual("---", context.get_value("a", context=third))
-        self.assertEqual(None, context.get_value("a"))
+        key = context.create_key("a")
+        first = context.set_value(key, "yyy")
+        second = context.set_value(key, "zzz")
+        third = context.set_value(key, "---", first)
+        self.assertEqual("yyy", context.get_value(key, context=first))
+        self.assertEqual("zzz", context.get_value(key, context=second))
+        self.assertEqual("---", context.get_value(key, context=third))
+        self.assertEqual(None, context.get_value(key))
 
     def test_context_is_immutable(self):
         with self.assertRaises(ValueError):
@@ -60,10 +63,11 @@ class TestContext(unittest.TestCase):
             context.get_current()["test"] = "cant-change-immutable"
 
     def test_set_current(self):
-        context.attach(context.set_value("a", "yyy"))
+        key = context.create_key("a")
+        context.attach(context.set_value(key, "yyy"))
 
-        token = context.attach(context.set_value("a", "zzz"))
-        self.assertEqual("zzz", context.get_value("a"))
+        token = context.attach(context.set_value(key, "zzz"))
+        self.assertEqual("zzz", context.get_value(key))
 
         context.detach(token)
-        self.assertEqual("yyy", context.get_value("a"))
+        self.assertEqual("yyy", context.get_value(key))
