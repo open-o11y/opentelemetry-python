@@ -12,20 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# type: ignore
+
 from importlib import reload
 from os import environ
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from opentelemetry.baggage.propagation import BaggagePropagator
-from opentelemetry.configuration import Configuration
+from opentelemetry.baggage.propagation import W3CBaggagePropagator
+from opentelemetry.environment_variables import OTEL_PROPAGATORS
 from opentelemetry.trace.propagation.tracecontext import (
     TraceContextTextMapPropagator,
 )
 
 
 class TestPropagators(TestCase):
-    @patch("opentelemetry.propagators.composite.CompositeHTTPPropagator")
+    @patch("opentelemetry.propagators.composite.CompositePropagator")
     def test_default_composite_propagators(self, mock_compositehttppropagator):
         def test_propagators(propagators):
 
@@ -33,26 +35,24 @@ class TestPropagators(TestCase):
 
             self.assertEqual(len(propagators), 2)
             self.assertEqual(
-                propagators, {TraceContextTextMapPropagator, BaggagePropagator}
+                propagators,
+                {TraceContextTextMapPropagator, W3CBaggagePropagator},
             )
 
         mock_compositehttppropagator.configure_mock(
             **{"side_effect": test_propagators}
         )
 
-        import opentelemetry.propagators
+        import opentelemetry.propagate
 
-        reload(opentelemetry.propagators)
+        reload(opentelemetry.propagate)
 
-    @patch.dict(environ, {"OTEL_PROPAGATORS": "a,b,c"})
-    @patch("opentelemetry.propagators.composite.CompositeHTTPPropagator")
+    @patch.dict(environ, {OTEL_PROPAGATORS: "a,b,c"})
+    @patch("opentelemetry.propagators.composite.CompositePropagator")
     @patch("pkg_resources.iter_entry_points")
     def test_non_default_propagators(
         self, mock_iter_entry_points, mock_compositehttppropagator
     ):
-
-        Configuration._reset()
-
         def iter_entry_points_mock(_, propagator):
             return iter(
                 [
@@ -78,6 +78,6 @@ class TestPropagators(TestCase):
             **{"side_effect": test_propagators}
         )
 
-        import opentelemetry.propagators
+        import opentelemetry.propagate
 
-        reload(opentelemetry.propagators)
+        reload(opentelemetry.propagate)

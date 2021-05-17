@@ -16,12 +16,7 @@ import logging
 import unittest
 from contextlib import contextmanager
 
-from opentelemetry import metrics as metrics_api
 from opentelemetry import trace as trace_api
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export.in_memory_metrics_exporter import (
-    InMemoryMetricsExporter,
-)
 from opentelemetry.sdk.trace import TracerProvider, export
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
     InMemorySpanExporter,
@@ -38,13 +33,6 @@ class TestBase(unittest.TestCase):
         # current tracer provider.
         trace_api._TRACER_PROVIDER = None  # pylint: disable=protected-access
         trace_api.set_tracer_provider(cls.tracer_provider)
-        cls.original_meter_provider = metrics_api.get_meter_provider()
-        result = cls.create_meter_provider()
-        cls.meter_provider, cls.memory_metrics_exporter = result
-        # This is done because set_meter_provider cannot override the
-        # current meter provider.
-        metrics_api._METER_PROVIDER = None  # pylint: disable=protected-access
-        metrics_api.set_meter_provider(cls.meter_provider)
 
     @classmethod
     def tearDownClass(cls):
@@ -52,10 +40,6 @@ class TestBase(unittest.TestCase):
         # current tracer provider.
         trace_api._TRACER_PROVIDER = None  # pylint: disable=protected-access
         trace_api.set_tracer_provider(cls.original_tracer_provider)
-        # This is done because set_meter_provider cannot override the
-        # current meter provider.
-        metrics_api._METER_PROVIDER = None  # pylint: disable=protected-access
-        metrics_api.set_meter_provider(cls.original_meter_provider)
 
     def setUp(self):
         self.memory_exporter.clear()
@@ -81,7 +65,7 @@ class TestBase(unittest.TestCase):
         """Helper to create a configured tracer provider.
 
         Creates and configures a `TracerProvider` with a
-        `SimpleExportSpanProcessor` and a `InMemorySpanExporter`.
+        `SimpleSpanProcessor` and a `InMemorySpanExporter`.
         All the parameters passed are forwarded to the TracerProvider
         constructor.
 
@@ -91,24 +75,10 @@ class TestBase(unittest.TestCase):
         """
         tracer_provider = TracerProvider(**kwargs)
         memory_exporter = InMemorySpanExporter()
-        span_processor = export.SimpleExportSpanProcessor(memory_exporter)
+        span_processor = export.SimpleSpanProcessor(memory_exporter)
         tracer_provider.add_span_processor(span_processor)
 
         return tracer_provider, memory_exporter
-
-    @staticmethod
-    def create_meter_provider(**kwargs):
-        """Helper to create a configured meter provider
-
-        Creates a `MeterProvider` and an `InMemoryMetricsExporter`.
-
-        Returns:
-            A list with the meter provider in the first element and the
-            in-memory metrics exporter in the second
-        """
-        meter_provider = MeterProvider(**kwargs)
-        memory_exporter = InMemoryMetricsExporter()
-        return meter_provider, memory_exporter
 
     @staticmethod
     @contextmanager

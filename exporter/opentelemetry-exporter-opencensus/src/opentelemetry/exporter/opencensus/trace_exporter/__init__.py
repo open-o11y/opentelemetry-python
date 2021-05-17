@@ -25,7 +25,9 @@ from opencensus.proto.agent.trace.v1 import (
 from opencensus.proto.trace.v1 import trace_pb2
 
 import opentelemetry.exporter.opencensus.util as utils
-from opentelemetry.sdk.trace import Span
+from opentelemetry import trace
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace import ReadableSpan
 from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
 
 DEFAULT_ENDPOINT = "localhost:55678"
@@ -39,7 +41,6 @@ class OpenCensusSpanExporter(SpanExporter):
 
     Args:
         endpoint: OpenCensus Collector receiver endpoint.
-        service_name: Name of Collector service.
         host_name: Host name.
         client: TraceService client stub.
     """
@@ -47,10 +48,15 @@ class OpenCensusSpanExporter(SpanExporter):
     def __init__(
         self,
         endpoint=DEFAULT_ENDPOINT,
-        service_name=None,
         host_name=None,
         client=None,
     ):
+        tracer_provider = trace.get_tracer_provider()
+        service_name = (
+            tracer_provider.resource.attributes[SERVICE_NAME]
+            if getattr(tracer_provider, "resource", None)
+            else Resource.create().attributes.get(SERVICE_NAME)
+        )
         self.endpoint = endpoint
         if client is None:
             self.channel = grpc.insecure_channel(self.endpoint)
@@ -62,7 +68,7 @@ class OpenCensusSpanExporter(SpanExporter):
 
         self.node = utils.get_node(service_name, host_name)
 
-    def export(self, spans: Sequence[Span]) -> SpanExportResult:
+    def export(self, spans: Sequence[ReadableSpan]) -> SpanExportResult:
         try:
             responses = self.client.Export(self.generate_span_requests(spans))
 
@@ -87,7 +93,7 @@ class OpenCensusSpanExporter(SpanExporter):
 
 
 # pylint: disable=too-many-branches
-def translate_to_collector(spans: Sequence[Span]):
+def translate_to_collector(spans: Sequence[ReadableSpan]):
     collector_spans = []
     for span in spans:
         status = None

@@ -13,17 +13,32 @@
 # limitations under the License.
 
 
-from typing import Callable, Mapping, Optional, Sequence, Union
+from typing import Mapping, Optional, Sequence, Tuple, Union
 
 AttributeValue = Union[
     str,
     bool,
     int,
     float,
-    Sequence[Union[None, str]],
-    Sequence[Union[None, bool]],
-    Sequence[Union[None, int]],
-    Sequence[Union[None, float]],
+    Sequence[Optional[str]],
+    Sequence[Optional[bool]],
+    Sequence[Optional[int]],
+    Sequence[Optional[float]],
 ]
 Attributes = Optional[Mapping[str, AttributeValue]]
-AttributesFormatter = Callable[[], Attributes]
+AttributesAsKey = Tuple[
+    Tuple[
+        str,
+        Union[
+            str,
+            bool,
+            int,
+            float,
+            Tuple[Optional[str], ...],
+            Tuple[Optional[bool], ...],
+            Tuple[Optional[int], ...],
+            Tuple[Optional[float], ...],
+        ],
+    ],
+    ...,
+]

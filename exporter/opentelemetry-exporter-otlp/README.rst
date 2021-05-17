@@ -1,12 +1,20 @@
-OpenTelemetry Collector Exporter
-================================
+OpenTelemetry Collector Exporters
+=================================
 
 |pypi|
 
 .. |pypi| image:: https://badge.fury.io/py/opentelemetry-exporter-otlp.svg
    :target: https://pypi.org/project/opentelemetry-exporter-otlp/
 
-This library allows to export data to the OpenTelemetry Collector using the OpenTelemetry Protocol.
+This library is provided as a convenience to install all supported OpenTelemetry Collector Exporters. Currently it installs:
+* opentelemetry-exporter-otlp-proto-grpc
+
+In the future, additional packages will be available:
+* opentelemetry-exporter-otlp-proto-http
+* opentelemetry-exporter-otlp-json-http
+
+To avoid unnecessary dependencies, users should install the specific package once they've determined their
+preferred serialization and protocol method.
 
 Installation
 ------------
@@ -22,4 +30,4 @@ References
 * `OpenTelemetry Collector Exporter <https://opentelemetry-python.readthedocs.io/en/latest/exporter/otlp/otlp.html>`_
 * `OpenTelemetry Collector <https://github.com/open-telemetry/opentelemetry-collector/>`_
 * `OpenTelemetry <https://opentelemetry.io/>`_
-* `OpenTelemetry Protocol Specification <https://github.com/open-telemetry/oteps/blob/master/text/0035-opentelemetry-protocol.md>`_
+* `OpenTelemetry Protocol Specification <https://github.com/open-telemetry/oteps/blob/main/text/0035-opentelemetry-protocol.md>`_

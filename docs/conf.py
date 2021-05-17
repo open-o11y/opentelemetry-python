@@ -23,11 +23,6 @@ from django.conf import settings
 
 settings.configure()
 
-
-source_dirs = [
-    os.path.abspath("../opentelemetry-instrumentation/src/"),
-]
-
 exp = "../exporter"
 exp_dirs = [
     os.path.abspath("/".join(["../exporter", f, "src"]))
@@ -35,14 +30,14 @@ exp_dirs = [
     if isdir(join(exp, f))
 ]
 
-instr = "../instrumentation"
-instr_dirs = [
-    os.path.abspath("/".join(["../instrumentation", f, "src"]))
-    for f in listdir(instr)
-    if isdir(join(instr, f))
+shim = "../shim"
+shim_dirs = [
+    os.path.abspath("/".join(["../shim", f, "src"]))
+    for f in listdir(shim)
+    if isdir(join(shim, f))
 ]
 
-sys.path[:0] = source_dirs + exp_dirs + instr_dirs
+sys.path[:0] = exp_dirs + shim_dirs
 
 # -- Project information -----------------------------------------------------
 
@@ -86,6 +81,7 @@ intersphinx_mapping = {
     "aiohttp": ("https://aiohttp.readthedocs.io/en/stable/", None),
     "wrapt": ("https://wrapt.readthedocs.io/en/latest/", None),
     "pymongo": ("https://pymongo.readthedocs.io/en/stable/", None),
+    "grpc": ("https://grpc.github.io/grpc/python/", None),
 }
 
 # http://www.sphinx-doc.org/en/master/config.html#confval-nitpicky
@@ -100,16 +96,26 @@ nitpick_ignore = [
     # Even if wrapt is added to intersphinx_mapping, sphinx keeps failing
     # with "class reference target not found: ObjectProxy".
     ("py:class", "ObjectProxy"),
-    # TODO: Understand why sphinx is not able to find this local class
-    ("py:class", "opentelemetry.trace.propagation.textmap.TextMapPropagator",),
-    ("py:class", "opentelemetry.trace.propagation.textmap.DictGetter",),
     (
-        "any",
-        "opentelemetry.trace.propagation.textmap.TextMapPropagator.extract",
+        "py:class",
+        "opentelemetry.trace._LinkBase",
+    ),
+    # TODO: Understand why sphinx is not able to find this local class
+    (
+        "py:class",
+        "opentelemetry.propagators.textmap.TextMapPropagator",
+    ),
+    (
+        "py:class",
+        "opentelemetry.propagators.textmap.DefaultGetter",
     ),
     (
         "any",
-        "opentelemetry.trace.propagation.textmap.TextMapPropagator.inject",
+        "opentelemetry.propagators.textmap.TextMapPropagator.extract",
+    ),
+    (
+        "any",
+        "opentelemetry.propagators.textmap.TextMapPropagator.inject",
     ),
 ]
 
@@ -119,7 +125,15 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "examples/fork-process-model/flask-gunicorn",
+    "examples/fork-process-model/flask-uwsgi",
+    "examples/error_handler/error_handler_0",
+    "examples/error_handler/error_handler_1",
+]
 
 autodoc_default_options = {
     "members": True,
@@ -143,7 +157,7 @@ html_static_path = []
 # Support external links to specific versions of the files in the Github repo
 branch = os.environ.get("READTHEDOCS_VERSION")
 if branch is None or branch == "latest":
-    branch = "master"
+    branch = "main"
 
 REPO = "open-telemetry/opentelemetry-python/"
 scm_raw_web = "https://raw.githubusercontent.com/" + REPO + branch

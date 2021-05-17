@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# type: ignore
+
 import unittest
 
 from opentelemetry import baggage, context
@@ -39,7 +41,8 @@ class TestBaggageManager(unittest.TestCase):
         self.assertEqual(baggage.get_baggage("test", context=ctx), "value")
         self.assertEqual(baggage.get_baggage("test2", context=ctx), "value2")
         self.assertEqual(
-            baggage.get_all(context=ctx), {"test": "value", "test2": "value2"},
+            baggage.get_all(context=ctx),
+            {"test": "value", "test2": "value2"},
         )
 
     def test_modifying_baggage(self):

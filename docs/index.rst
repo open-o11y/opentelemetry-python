@@ -3,9 +3,9 @@ OpenTelemetry-Python
 
 The Python `OpenTelemetry <https://opentelemetry.io/>`_ client.
 
-.. image:: https://img.shields.io/gitter/room/opentelemetry/opentelemetry-python
-   :target: https://gitter.im/open-telemetry/opentelemetry-python
-   :alt: Gitter Chat
+.. image:: https://img.shields.io/badge/slack-chat-green.svg
+   :target: https://cloud-native.slack.com/archives/C01PD4HUVBL
+   :alt: Slack Chat
 
 
 This documentation describes the :doc:`opentelemetry-api <api/api>`,
@@ -13,6 +13,10 @@ This documentation describes the :doc:`opentelemetry-api <api/api>`,
 
 **Please note** that this library is currently in _beta_, and shouldn't
 generally be used in production environments.
+
+Requirement
+-----------
+OpenTelemetry-Python supports Python 3.6 and higher.
 
 Installation
 ------------
@@ -32,8 +36,8 @@ In addition, there are several extension packages which can be installed separat
 These are for exporter and instrumentation packages respectively.
 Some packages can be found in :scm_web:`instrumentation <instrumentation/>` and :scm_web:`exporter <exporter/>`
 directory of the repository. The remaining packages can be found at the 
-`Contrib repo instrumentation <https://github.com/open-telemetry/opentelemetry-python-contrib/tree/master/instrumentation>`_
-and `Contrib repo exporter <https://github.com/open-telemetry/opentelemetry-python-contrib/tree/master/exporter>`_ directories.
+`Contrib repo instrumentation <https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/instrumentation>`_
+and `Contrib repo exporter <https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/exporter>`_ directories.
 
 Extensions
 ----------
@@ -68,16 +72,15 @@ install <https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs>
 
 .. toctree::
     :maxdepth: 1
-    :caption: OpenTelemetry Python Packages
+    :caption: Core Packages
     :name: packages
 
     api/api
     sdk/sdk
-    instrumentation/instrumentation
 
 .. toctree::
     :maxdepth: 2
-    :caption: OpenTelemetry Exporters
+    :caption: Exporters
     :name: exporters
     :glob:
 
@@ -85,11 +88,19 @@ install <https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs>
 
 .. toctree::
     :maxdepth: 2
-    :caption: OpenTelemetry Instrumentations
-    :name: Instrumentations
+    :caption: Shims
+    :name: Shims
     :glob:
 
-    instrumentation/**
+    shim/**
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Performance
+    :name: performance-tests
+    :glob:
+
+    performance/**
 
 .. toctree::
     :maxdepth: 1
