@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1621986467666,
+  "lastUpdate": 1621986496965,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -540,6 +540,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0008631072448237836",
             "extra": "mean: 233.78256480980414 usec\nrounds: 5547"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ocelotl@users.noreply.github.com",
+            "name": "Diego Hurtado",
+            "username": "ocelotl"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1470a8c1ad8b4f7138ab98f7d366cf0dc155e6b0",
+          "message": "Add public symbols checker script (#1816)",
+          "timestamp": "2021-05-25T13:15:27-07:00",
+          "tree_id": "9ec37e978259a7da52692fe87a4b2ba6fe5064fa",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/1470a8c1ad8b4f7138ab98f7d366cf0dc155e6b0"
+        },
+        "date": 1621986496036,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "exporter/opentelemetry-exporter-otlp-proto-grpc/tests/performance/benchmarks/test_benchmark_trace_exporter.py::test_simple_span_processor",
+            "value": 2457.481010156539,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000015148623940608596",
+            "extra": "mean: 406.9207435854412 usec\nrounds: 39"
+          },
+          {
+            "name": "exporter/opentelemetry-exporter-otlp-proto-grpc/tests/performance/benchmarks/test_benchmark_trace_exporter.py::test_batch_span_processor",
+            "value": 3453.5895218694322,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000961626131415665",
+            "extra": "mean: 289.55380877421084 usec\nrounds: 4513"
           }
         ]
       }
