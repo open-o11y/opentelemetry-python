@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1622445044360,
+  "lastUpdate": 1622445058788,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -962,6 +962,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000005230115981707045",
             "extra": "mean: 57.75262784028772 usec\nrounds: 6293"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ocelotl@users.noreply.github.com",
+            "name": "Diego Hurtado",
+            "username": "ocelotl"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c8ebda956160b658a2569a109248cbcdb54c995e",
+          "message": "Fix error in license files (#1881)\n\nFixes #1880",
+          "timestamp": "2021-05-28T09:17:54-07:00",
+          "tree_id": "0578e40918bfdba5b3aa7b43f101e9e53c8eda0e",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/c8ebda956160b658a2569a109248cbcdb54c995e"
+        },
+        "date": 1622445057814,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "opentelemetry-sdk/tests/performance/benchmarks/trace/test_benchmark_trace.py::test_simple_start_span",
+            "value": 22926.670976740494,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000008378463483071599",
+            "extra": "mean: 43.61732241957488 usec\nrounds: 4398"
+          },
+          {
+            "name": "opentelemetry-sdk/tests/performance/benchmarks/trace/test_benchmark_trace.py::test_simple_start_as_current_span",
+            "value": 17890.35594392229,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000012948602692578104",
+            "extra": "mean: 55.89603712382927 usec\nrounds: 7246"
           }
         ]
       }
