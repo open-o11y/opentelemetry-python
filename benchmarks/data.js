@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1623134117385,
+  "lastUpdate": 1623134128987,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -764,6 +764,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0009153553551626677",
             "extra": "mean: 297.6296201799012 usec\nrounds: 5550"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "srikanth.chekuri92@gmail.com",
+            "name": "Srikanth Chekuri",
+            "username": "lonewolf3739"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "3ae6c2eb42af7a2d0209a433cae3e6503ebfa1ed",
+          "message": "Fix pipeline failure (#1896)",
+          "timestamp": "2021-06-07T11:31:30-07:00",
+          "tree_id": "a25b3d44792cc2f721dbb588e57f443b855aac16",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/3ae6c2eb42af7a2d0209a433cae3e6503ebfa1ed"
+        },
+        "date": 1623134128066,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "exporter/opentelemetry-exporter-otlp-proto-grpc/tests/performance/benchmarks/test_benchmark_trace_exporter.py::test_simple_span_processor",
+            "value": 2341.398251047159,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00008090885612247535",
+            "extra": "mean: 427.0952195137086 usec\nrounds: 41"
+          },
+          {
+            "name": "exporter/opentelemetry-exporter-otlp-proto-grpc/tests/performance/benchmarks/test_benchmark_trace_exporter.py::test_batch_span_processor",
+            "value": 3613.7130830152446,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0009134648805694571",
+            "extra": "mean: 276.72368476071995 usec\nrounds: 6411"
           }
         ]
       }
