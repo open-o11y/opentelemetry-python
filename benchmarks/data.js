@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1632272091784,
+  "lastUpdate": 1632272111753,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -4484,6 +4484,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000004025835296223186",
             "extra": "mean: 54.13021270842273 usec\nrounds: 5886"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mattp.droid@gmail.com",
+            "name": "Matt",
+            "username": "greaterthanmost"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8b5a967c836ba5654e7a537b4b4ec23458699d5d",
+          "message": "Fixing broken link in README (#2115)\n\nCo-authored-by: Srikanth Chekuri <srikanth.chekuri92@gmail.com>",
+          "timestamp": "2021-09-21T12:55:49-07:00",
+          "tree_id": "62329a7c8271ea81f98f97d6ec010d34e1cfef9e",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/8b5a967c836ba5654e7a537b4b4ec23458699d5d"
+        },
+        "date": 1632272110757,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "opentelemetry-sdk/tests/performance/benchmarks/trace/test_benchmark_trace.py::test_simple_start_span",
+            "value": 21140.0081760016,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000026416555164850512",
+            "extra": "mean: 47.3036713928622 usec\nrounds: 5219"
+          },
+          {
+            "name": "opentelemetry-sdk/tests/performance/benchmarks/trace/test_benchmark_trace.py::test_simple_start_as_current_span",
+            "value": 14598.505688916239,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00005475581287572582",
+            "extra": "mean: 68.5001616815644 usec\nrounds: 6921"
           }
         ]
       }
