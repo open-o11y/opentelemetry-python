@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1632504932094,
+  "lastUpdate": 1632504987837,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -992,6 +992,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000689478558697506",
             "extra": "mean: 132.34498384387697 usec\nrounds: 8913"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mario.jonke@dynatrace.com",
+            "name": "Mario Jonke",
+            "username": "mariojonke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3cee4efcc5d0c19ecc0e31ae712ace87528b5808",
+          "message": "Fix ReadableSpan import in OTLP grpc exporter (#2146)",
+          "timestamp": "2021-09-24T14:08:11Z",
+          "tree_id": "79f8c63fe25f35d59f5a7342d65bebd1d2824984",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/3cee4efcc5d0c19ecc0e31ae712ace87528b5808"
+        },
+        "date": 1632504986357,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "exporter/opentelemetry-exporter-otlp-proto-grpc/tests/performance/benchmarks/test_benchmark_trace_exporter.py::test_simple_span_processor",
+            "value": 3775.9401462271835,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000006365556353636385",
+            "extra": "mean: 264.8347063973386 usec\nrounds: 1485"
+          },
+          {
+            "name": "exporter/opentelemetry-exporter-otlp-proto-grpc/tests/performance/benchmarks/test_benchmark_trace_exporter.py::test_batch_span_processor",
+            "value": 7337.794342765946,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0007270657871707413",
+            "extra": "mean: 136.28073413993434 usec\nrounds: 9174"
           }
         ]
       }
