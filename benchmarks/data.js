@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1632504794867,
+  "lastUpdate": 1632504797054,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -3138,6 +3138,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 2.786496237443236e-7",
             "extra": "mean: 5.520309215626293 usec\nrounds: 58477"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mario.jonke@dynatrace.com",
+            "name": "Mario Jonke",
+            "username": "mariojonke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3cee4efcc5d0c19ecc0e31ae712ace87528b5808",
+          "message": "Fix ReadableSpan import in OTLP grpc exporter (#2146)",
+          "timestamp": "2021-09-24T14:08:11Z",
+          "tree_id": "79f8c63fe25f35d59f5a7342d65bebd1d2824984",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/3cee4efcc5d0c19ecc0e31ae712ace87528b5808"
+        },
+        "date": 1632504795417,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "propagator/opentelemetry-propagator-b3/tests/performance/benchmarks/trace/propagation/test_benchmark_b3_format.py::test_extract_single_header",
+            "value": 101997.9203777968,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000015096242843503626",
+            "extra": "mean: 9.804121459496763 usec\nrounds: 9921"
+          },
+          {
+            "name": "propagator/opentelemetry-propagator-b3/tests/performance/benchmarks/trace/propagation/test_benchmark_b3_format.py::test_inject_empty_context",
+            "value": 160124.94684962934,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000023513241258888606",
+            "extra": "mean: 6.245123072166159 usec\nrounds: 51547"
           }
         ]
       }
