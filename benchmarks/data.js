@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1632504908417,
+  "lastUpdate": 1632504932094,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -342,6 +342,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0008822921919119328",
             "extra": "mean: 218.01831560223124 usec\nrounds: 7294"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mario.jonke@dynatrace.com",
+            "name": "Mario Jonke",
+            "username": "mariojonke"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3cee4efcc5d0c19ecc0e31ae712ace87528b5808",
+          "message": "Fix ReadableSpan import in OTLP grpc exporter (#2146)",
+          "timestamp": "2021-09-24T14:08:11Z",
+          "tree_id": "79f8c63fe25f35d59f5a7342d65bebd1d2824984",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/3cee4efcc5d0c19ecc0e31ae712ace87528b5808"
+        },
+        "date": 1632504931069,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "exporter/opentelemetry-exporter-otlp-proto-grpc/tests/performance/benchmarks/test_benchmark_trace_exporter.py::test_simple_span_processor",
+            "value": 2719.1203272888724,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000008810673534233217",
+            "extra": "mean: 367.7659976883261 usec\nrounds: 1298"
+          },
+          {
+            "name": "exporter/opentelemetry-exporter-otlp-proto-grpc/tests/performance/benchmarks/test_benchmark_trace_exporter.py::test_batch_span_processor",
+            "value": 4280.3032852791375,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0009455569909571619",
+            "extra": "mean: 233.62830466691696 usec\nrounds: 6128"
           }
         ]
       }
