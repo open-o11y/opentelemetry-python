@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1632789284805,
+  "lastUpdate": 1632789310214,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -5166,6 +5166,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0001682286867787112",
             "extra": "mean: 69.44539159169696 usec\nrounds: 8468"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "aboten@lightstep.com",
+            "name": "alrex",
+            "username": "codeboten"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "a462f554bb7bc2d20a3780ce663f2c4904480a36",
+          "message": "update to pylint 2.11.0 (#2119)\n\n* test pylint 2.11.0\r\n\r\n* address last few pylint issues\r\n\r\n* fix mypy\r\n\r\nCo-authored-by: Srikanth Chekuri <srikanth.chekuri92@gmail.com>",
+          "timestamp": "2021-09-27T16:09:22Z",
+          "tree_id": "9eceed3e47a07e6e5116855acec3b3efba2f8eb5",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/a462f554bb7bc2d20a3780ce663f2c4904480a36"
+        },
+        "date": 1632789308687,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "opentelemetry-sdk/tests/performance/benchmarks/trace/test_benchmark_trace.py::test_simple_start_span",
+            "value": 29349.507713299314,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000011463898927235257",
+            "extra": "mean: 34.07212174624872 usec\nrounds: 4879"
+          },
+          {
+            "name": "opentelemetry-sdk/tests/performance/benchmarks/trace/test_benchmark_trace.py::test_simple_start_as_current_span",
+            "value": 21296.87943012402,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000015010179316408567",
+            "extra": "mean: 46.955236013850914 usec\nrounds: 6703"
           }
         ]
       }
