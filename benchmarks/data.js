@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1632789397688,
+  "lastUpdate": 1632789422975,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -4550,6 +4550,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0000011796065285073599",
             "extra": "mean: 5.754450204289264 usec\nrounds: 56812"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "aboten@lightstep.com",
+            "name": "alrex",
+            "username": "codeboten"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "a462f554bb7bc2d20a3780ce663f2c4904480a36",
+          "message": "update to pylint 2.11.0 (#2119)\n\n* test pylint 2.11.0\r\n\r\n* address last few pylint issues\r\n\r\n* fix mypy\r\n\r\nCo-authored-by: Srikanth Chekuri <srikanth.chekuri92@gmail.com>",
+          "timestamp": "2021-09-27T16:09:22Z",
+          "tree_id": "9eceed3e47a07e6e5116855acec3b3efba2f8eb5",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/a462f554bb7bc2d20a3780ce663f2c4904480a36"
+        },
+        "date": 1632789420606,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "propagator/opentelemetry-propagator-b3/tests/performance/benchmarks/trace/propagation/test_benchmark_b3_format.py::test_extract_single_header",
+            "value": 91530.89671871418,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000014691728314876238",
+            "extra": "mean: 10.925272622130255 usec\nrounds: 11261"
+          },
+          {
+            "name": "propagator/opentelemetry-propagator-b3/tests/performance/benchmarks/trace/propagation/test_benchmark_b3_format.py::test_inject_empty_context",
+            "value": 148083.44223312565,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000016997728828103243",
+            "extra": "mean: 6.752949451470166 usec\nrounds: 50506"
           }
         ]
       }
