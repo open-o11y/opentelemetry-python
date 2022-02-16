@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1645028739040,
+  "lastUpdate": 1645028791539,
   "repoUrl": "https://github.com/open-o11y/opentelemetry-python",
   "entries": {
     "OpenTelemetry Python Benchmarks - Python 3.7 - exporter": [
@@ -5424,6 +5424,44 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006652421515252093",
             "extra": "mean: 6.113908784663082 usec\nrounds: 58477"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ocelotl@users.noreply.github.com",
+            "name": "Diego Hurtado",
+            "username": "ocelotl"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ec3053efd835d1776112447808712ba52f9c70ad",
+          "message": "Merge Asynchronous and Synchronous sum aggregations (#2379)\n\n* Merge Asynchronous and Synchronous sum aggregations\r\n\r\nFixes #2353\r\n\r\n* Don't use None for self._value\r\n\r\n* Remove temporality check from sum aggregate\r\n\r\n* Update opentelemetry-sdk/src/opentelemetry/sdk/_metrics/aggregation.py\r\n\r\nCo-authored-by: Aaron Abbott <aaronabbott@google.com>\r\n\r\n* Add cumulative test cases\r\n\r\n* Fix lint\r\n\r\n* Set value to None\r\n\r\nThis is done in order to identify the situation when aggregate has not\r\nbeen called before collect is.\r\n\r\n* Refactor collect\r\n\r\n* Fix initial value\r\n\r\n* Update opentelemetry-sdk/tests/metrics/test_aggregation.py\r\n\r\nCo-authored-by: Aaron Abbott <aaronabbott@google.com>\r\n\r\n* Undo changes to lastvalueaggrgation\r\n\r\n* Fix test case\r\n\r\nCo-authored-by: Aaron Abbott <aaronabbott@google.com>",
+          "timestamp": "2022-02-11T14:24:38-06:00",
+          "tree_id": "d91662e38841805bd0a590ff0366f782624d8868",
+          "url": "https://github.com/open-o11y/opentelemetry-python/commit/ec3053efd835d1776112447808712ba52f9c70ad"
+        },
+        "date": 1645028790561,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "propagator/opentelemetry-propagator-b3/tests/performance/benchmarks/trace/propagation/test_benchmark_b3_format.py::test_extract_single_header",
+            "value": 109274.75180541103,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000005314267602438479",
+            "extra": "mean: 9.151244761285128 usec\nrounds: 12837"
+          },
+          {
+            "name": "propagator/opentelemetry-propagator-b3/tests/performance/benchmarks/trace/propagation/test_benchmark_b3_format.py::test_inject_empty_context",
+            "value": 194254.78767787822,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000008290142225809374",
+            "extra": "mean: 5.147878268299074 usec\nrounds: 62112"
           }
         ]
       }
